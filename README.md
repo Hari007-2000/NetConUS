@@ -1,16 +1,89 @@
 # NetConUS
 
-The NetConUS code is organized into 4 files
+NetConUS is a network-connectivity based stream classification workflow built on **NHDPlus V2** stream network data.  
+It (i) builds a stream graph, (ii) computes network metrics, (iii) clusters and assigns **fuzzy stream class labels**, and (iv) validates the classification using **Bayesian Neural Networks (BNNs)** with epistemic uncertainty.
 
-1. NetConUS graph development
-2. Network properties calculation -Lower Mississippi region
-3. Stream classification based on the network properties
-4. Validation of the NetConUS using BNNs
+---
 
-NetConUS graph development.py: Constructs the stream network graph using NHDPlus V2 data, incorporating dam and impoundment impacts to reflect real-world fragmentation.
+## Repository structure
 
-Network properties calculation - Lower Mississippi region.py: Computes essential network metrics (e.g., degree, betweenness, closeness) for each stream segment, forming the basis for classification.
+NetConUS/
+├─ NetConUS graph development.py
+├─ Network properties calculation - Lower Mississippi region.py
+├─ Stream classification based on the network properties.py
+├─ Validation of the NetConUS using BNNs.py
+├─ data/
+│ ├─ Hydrography/ # NHDPlus V2 HUC folders or extracted shapefiles
+│ ├─ dams/ # NID dams file (CSV or shapefile)
+│ └─ derived/ # outputs: metrics, clusters, stream classes
+└─ figures/ # exported PNGs
 
-Stream classification based on the network properties.py: Clusters the stream nodes using Gaussian Mixture Models, and assigns fuzzy logic-based stream class labels.
 
-Validation of the NetConUS using BNNs.py: Validates the classification using Bayesian Neural Networks (BNNs), quantifies epistemic uncertainty, and visualizes results with metrics like confusion matrix, ROC, and UMAP.
+### 1) `NetConUS graph development.py`
+Constructs the stream network graph from NHDPlus V2 flowlines and accounts for fragmentation:
+- **Impoundments/reservoirs:** identifies stream segments intersecting `NHDWaterbody` and optionally removes/labels them  
+- **Dams:** spatially filters dams to the region and severs connectivity at nearest stream segment(s)
+
+### 2) `Network properties calculation - Lower Mississippi region.py`
+Computes network properties per stream segment:
+- Degree centrality  
+- Betweenness centrality (approximate option for scalability)  
+- Closeness centrality  
+- Clustering coefficient  
+- Eigenvector centrality  
+- (Optional) PageRank
+
+### 3) `Stream classification based on the network properties.py`
+Clusters stream segments and assigns semantic labels:
+- Fits **Gaussian Mixture Models (GMM)**
+- Uses **BIC** (and optionally AIC) to select number of clusters
+- Computes cluster centroids
+- Assigns labels using **fuzzy logic rules** derived from centroid patterns (high/medium/low across metrics)
+
+### 4) `Validation of the NetConUS using BNNs.py`
+Validates stream class predictions with a Bayesian Neural Network (Pyro):
+- learns distributions over weights (posterior)
+- predicts class probabilities
+- quantifies **epistemic uncertainty** (posterior predictive variance / std of logits)
+- visualizes results: confusion matrix, ROC, PR, UMAP uncertainty
+
+---
+
+## Data sources (official links)
+
+### NHDPlus Version 2 (NHDPlus V2)
+Download NHD (HU4 staged products) from the USGS “The National Map” staging bucket:
+
+- **Base directory (NHD products):**
+  https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/NHD/
+
+- **HUC-4 downloads (HU4):**
+  https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/NHD/HU4/
+
+You will need at minimum:
+- `NHDFlowline.shp`
+- `NHDWaterbody.shp`
+
+> Tip: Keep each HUC region extracted into its own folder under `data/Hydrography/<RegionName>/Hydrography/`
+
+### National Inventory of Dams (NID)
+Official portal for dam data:
+
+https://nid.sec.usace.army.mil/#/
+
+Export/download and store in `data/dams/` as e.g.:
+- `nation.csv` (your scripts assume this name in places)
+
+Required columns (typical):
+- `Latitude`, `Longitude`, `Dam Name` (or equivalent)
+
+---
+
+## Setup
+
+### Python environment
+
+pip install pandas numpy geopandas shapely rtree pygeos
+pip install networkx scikit-learn matplotlib seaborn tqdm
+pip install torch pyro-ppl umap-learn
+pip install imbalanced-learn
