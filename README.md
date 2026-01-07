@@ -41,10 +41,7 @@ Validates stream class predictions with a Bayesian Neural Network (Pyro):
 Download NHD (HU4 staged products) from the USGS “The National Map” staging bucket:
 
 - **Base directory (NHD products):**
-  https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/NHD/
-
-- **HUC-4 downloads (HU4):**
-  https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/NHD/HU4/
+  https://www.usgs.gov/national-hydrography/national-hydrography-dataset 
 
 You will need at minimum:
 - `NHDFlowline.shp`
