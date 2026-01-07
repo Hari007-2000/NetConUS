@@ -8,7 +8,7 @@ It (i) builds a stream graph, (ii) computes network metrics, (iii) clusters and 
 ### 1) `NetConUS graph development.py`
 Constructs the stream network graph from NHDPlus V2 flowlines and accounts for fragmentation:
 - **Impoundments/reservoirs:** identifies stream segments intersecting `NHDWaterbody` and optionally removes/labels them  
-- **Dams:** spatially filters dams to the region and severs connectivity at nearest stream segment(s)
+- **Dams:** spatially filters dams to the region and incorporates fragmentation at nearest stream reache(s)
 
 ### 2) `Network properties calculation - Lower Mississippi region.py`
 Computes network properties per stream segment:
@@ -31,19 +31,20 @@ Validates stream class predictions with a Bayesian Neural Network (Pyro):
 - learns distributions over weights (posterior)
 - predicts class probabilities
 - quantifies **epistemic uncertainty** (posterior predictive variance / std of logits)
-- visualizes results: confusion matrix, ROC, PR, UMAP uncertainty
+
 
 ---
 
 ## Data sources (official links)
 
 ### NHDPlus Version 2 (NHDPlus V2)
-Download NHD (HU4 staged products) from the USGS “The National Map” staging bucket:
+Download NHD from the USGS “The National Map” staging bucket:
 
 - **Base directory (NHD products):**
   https://www.usgs.gov/national-hydrography/national-hydrography-dataset 
 
-You will need at minimum:
+The main files needed for the graph development:
+
 - `NHDFlowline.shp`
 - `NHDWaterbody.shp`
 
@@ -69,4 +70,4 @@ Required columns (typical):
 pip install pandas numpy geopandas shapely rtree pygeos
 pip install networkx scikit-learn matplotlib seaborn tqdm
 pip install torch pyro-ppl umap-learn
-pip install imbalanced-learn
+
