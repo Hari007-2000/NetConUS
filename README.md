@@ -5,20 +5,6 @@ It (i) builds a stream graph, (ii) computes network metrics, (iii) clusters and 
 
 ---
 
-## Repository structure
-
-NetConUS/
-├─ NetConUS graph development.py
-├─ Network properties calculation - Lower Mississippi region.py
-├─ Stream classification based on the network properties.py
-├─ Validation of the NetConUS using BNNs.py
-├─ data/
-│ ├─ Hydrography/ # NHDPlus V2 HUC folders or extracted shapefiles
-│ ├─ dams/ # NID dams file (CSV or shapefile)
-│ └─ derived/ # outputs: metrics, clusters, stream classes
-└─ figures/ # exported PNGs
-
-
 ### 1) `NetConUS graph development.py`
 Constructs the stream network graph from NHDPlus V2 flowlines and accounts for fragmentation:
 - **Impoundments/reservoirs:** identifies stream segments intersecting `NHDWaterbody` and optionally removes/labels them  
